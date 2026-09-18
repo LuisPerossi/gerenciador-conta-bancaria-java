@@ -1,6 +1,7 @@
 package view;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class MensagemGUI {
     public static void exibirMensagem(String message) {

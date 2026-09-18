@@ -5,12 +5,14 @@ import exception.SalvarContasException;
 import model.Conta;
 import model.ContaCorrente;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import static java.util.stream.Collectors.groupingBy;
 
 public class ContaService {
     public ArrayList<ContaCorrente> contas = new ArrayList<>();
@@ -49,20 +51,27 @@ public class ContaService {
             throw new SalvarContasException(e.getMessage());
         }
     }
+
+    public List<ContaCorrente> filtrarMaiorDezMil() {
+        return this.contas
+            .stream()
+            .filter(c -> c.getSaldo() > 10000)
+            .toList();
+    }
+
+    public double calcularTotal() {
+        return this.contas
+            .stream()
+            .map(ContaCorrente::getSaldo)
+            .reduce(0.0, Double::sum);
+    }
+
+    public Map<String, List<ContaCorrente>> agruparSaldos() {
+        return contas.stream()
+            .collect(groupingBy(c -> {
+                if (c.getSaldo() <= 5000) return "(a) Até R$5.000";
+                if (c.getSaldo() <= 10000) return "(b) De R$5.001 à R$10.000";
+                return "(c) Acima de 10.000";
+            }));
+    }
 }
-
-/*
-    public ContaCorrente lerConta(String caminho) throws IOException {
-        String linha = Files.readString(Paths.get(caminho));
-        String[] dados = linha.split(",");
-        int numero = Integer.parseInt(dados[0]);
-        String titular = dados[1].trim();
-        double saldo = Double.parseDouble(dados[2]);
-        return new ContaCorrente(numero, titular, saldo);
-    }
-
-    public void salvarConta(String caminho, ContaCorrente conta) throws IOException {
-        String dados = conta.getNumero() + "," + conta.getTitular() + "," + conta.getSaldo();
-        Files.write(Paths.get(caminho), dados.getBytes());
-    }
- */
